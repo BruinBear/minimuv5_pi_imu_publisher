@@ -3,19 +3,19 @@
 
 // Magnetometer
 
-LIS3MDL::LIS3MDL(const char * i2cDeviceName) : i2c(i2cDeviceName)
+LIS3MDL::LIS3MDL(const char * i2cDeviceName, int addr) : i2c(i2cDeviceName)
 {
-    i2c.addressSet(0x1e);
+    i2c.addressSet(addr);
 }	
 
 // Turns on the gyro and places it in normal mode.
 void LIS3MDL::enable()
 {
     // printf("Enabling LIS3MDL\n");
-    /* uint8_t buf_whoami = readReg(_LIS3MDL_REG_WHO_AM_I);
+    uint8_t buf_whoami = readReg(_LIS3MDL_REG_WHO_AM_I);
     if (buf_whoami != _LIS3MDL_VAL_WHO_AM_I) {
         throw std::runtime_error("Could not detect gyro.");
-    } */
+    }
 
 
 

@@ -7,7 +7,6 @@ project(imu_talk)
 ## Find catkin and any catkin packages
 find_package(catkin REQUIRED cmake_modules COMPONENTS roscpp rospy std_msgs sensor_msgs genmsg)
 find_package(Eigen REQUIRED)
-
 ## Declare ROS messages and services
 # add_message_files(FILES Num.msg)
 # add_service_files(FILES AddTwoInts.srv)
@@ -48,3 +47,14 @@ target_link_libraries(talker
 	IMU
 	IMU_OP
 )
+
+#add_executable(tf_broadcaster src/tf_broadcaster.cpp)
+#target_link_libraries(tf_broadcaster
+#	${catkin_LIBRARIES}
+#  ${Eigen_LIBRARIES}
+#	I2C
+#	LSM6
+#	LIS3
+#	IMU
+#	IMU_OP
+#)

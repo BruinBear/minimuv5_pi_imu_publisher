@@ -7,8 +7,8 @@
 #include <wordexp.h>
 #include <unistd.h>
 
-MinIMU9::MinIMU9(const char * i2cDeviceName) :
-  lsm6(i2cDeviceName), lis3(i2cDeviceName)
+MinIMU9::MinIMU9(const char * i2cDeviceName, int lsmaddr, int lisaddr) :
+  lsm6(i2cDeviceName, lsmaddr), lis3(i2cDeviceName, lisaddr)
 {
 }
 
@@ -66,12 +66,7 @@ vector MinIMU9::readMag()
 
 vector MinIMU9::readAcc()
 {
-    // Info about linear acceleration sensitivity from datasheets:
-    // LSM303DLM: at FS = 8 g, 3.9 mg/digit (12-bit reading)
-    // LSM303DLHC: at FS = 8 g, 4 mg/digit (12-bit reading probably an approximation)
-    // LSM303DLH: at FS = 8 g, 3.9 mg/digit (12-bit reading)
-    // LSM303D: at FS = 8 g, 0.244 mg/LSB (16-bit reading)
-    const float accel_scale = 0.000244;
+    const float accel_scale = 0.000122;
     //const float accel_scale = 0.122f / 1000.0f; // 0.000244;
 
     lsm6.readAcc();
@@ -81,11 +76,7 @@ vector MinIMU9::readAcc()
 
 vector MinIMU9::readGyro()
 {
-    // Info about sensitivity from datasheets:
-    // L3G4200D: at FS = 2000 dps, 70 mdps/digit
-    // L3GD20: at FS = 2000 dps, 70 mdps/digit
-    // L3GD20H: at FS = 2000 dps, 70 mdps/digit
-    const float gyro_scale = 0.07 * 3.14159265 / 180;
+    const float gyro_scale = 35.0f / 1000.0f / 180.0f;
     // const float gyro_scale = 35.0f / 1000.0f;
 
     lsm6.readGyro();

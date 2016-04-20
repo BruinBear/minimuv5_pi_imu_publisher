@@ -11,36 +11,17 @@ Relevant Pololu products:
 
 #define DS33_WHO_ID    0x69
 
-LSM6DS33::LSM6DS33(const char * i2cDeviceName) :
+LSM6DS33::LSM6DS33(const char * i2cDeviceName, int address) :
   i2c_gyro(i2cDeviceName), i2c_acc(i2cDeviceName)
 {
     I2CBus i2c(i2cDeviceName);
-    bool sa0;
-    if (i2c.tryReadByte(DS33_SA0_HIGH_ADDRESS, WHO_AM_I) == DS33_WHO_ID)
-    {
-        device = Device::LSM6DS33;
-        sa0 = true;
-    }
-    else if (i2c.tryReadByte(DS33_SA0_LOW_ADDRESS, WHO_AM_I) == DS33_WHO_ID)
-    {
-        // device responds to address 0011110 with D ID; it's a D with SA0 low
-				device = Device::LSM6DS33;
-        sa0 = false;
-    }
-    else
-    {
-        throw std::runtime_error("Could not detect accelerometer.");
-    }
-
     // Set the I2C addresses.
-    
-    uint8_t address = sa0 ? DS33_SA0_HIGH_ADDRESS : DS33_SA0_LOW_ADDRESS;
     i2c_acc.addressSet(address);
     i2c_gyro.addressSet(address);
 
     // Make sure we can actually read an accelerometer control register.
     // (This throws an exception if there is a problem.)
-    readAccReg(CTRL1_XL);
+//    readAccReg(CTRL1_XL);
 }
 
 uint8_t LSM6DS33::readGyroReg(uint8_t reg)
@@ -70,12 +51,12 @@ void LSM6DS33::enable(void)
     if (device == Device::LSM6DS33)
     {
 			// Accelerometer
-			// 0100: output rate 416Hz, 11: full scale +/-8g, 00: anti-aliasing filter bandwidth 400Hz
-			writeAccReg(CTRL1_XL, 0b01001100);
-	
-			// Gyro
-			// 1000: output rate 1.66kHz,  11: full scale 2000dps, 0: full scale at 125 dpsdisabled, last 0 default
-      writeGyroReg(CTRL2_G, 0b10001100);
+		  // Sets accelerometer to 833 Hz, full-scale of +/- 4g, 400Hz filter BW
+    	// corresponds to 0.122 mg/LSB (see page 15 of the LSM6DS33 datasheet)	
+			writeAccReg(CTRL1_XL, 0b01111000);
+			// Sets accelerometer to 833 Hz, full-scale of +/- 4g, 400Hz filter BW
+			// corresponds to 0.122 mg/LSB (see page 15 of the LSM6DS33 datasheet)
+      writeGyroReg(CTRL2_G, 0b01111000);
     }
 }
 
@@ -91,14 +72,10 @@ void LSM6DS33::readAcc(void)
 void LSM6DS33::readGyro(void)
 {
     uint8_t block[6];
-
-    if (device == Device::LSM6DS33)
-    {
-        i2c_gyro.readBlock(OUTX_L_G, sizeof(block), block);
-        g[0] = (int16_t)(block[0] | block[1] << 8);
-        g[1] = (int16_t)(block[2] | block[3] << 8);
-        g[2] = (int16_t)(block[4] | block[5] << 8);
-    }
+    i2c_gyro.readBlock(OUTX_L_G, sizeof(block), block);
+    g[0] = (int16_t)(block[0] | block[1] << 8);
+    g[1] = (int16_t)(block[2] | block[3] << 8);
+    g[2] = (int16_t)(block[4] | block[5] << 8);
 }
 
 void LSM6DS33::read(void)

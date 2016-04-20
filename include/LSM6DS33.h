@@ -12,7 +12,7 @@ class LSM6DS33
     int g[3];  // gyro readings
     int a[3];  // accelerator readings
 
-    LSM6DS33(const char * i2cDeviceName);
+    LSM6DS33(const char * i2cDeviceName, int addr);
 
     void enable(void);
 

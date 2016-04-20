@@ -7,7 +7,7 @@
 
 class MinIMU9 : public IMU {
 public:
-    MinIMU9(const char * i2cDeviceName);
+    MinIMU9(const char * i2cDeviceName, int lsmaddr, int lisaddr);
 
     LSM6DS33 lsm6;
     LIS3MDL lis3;

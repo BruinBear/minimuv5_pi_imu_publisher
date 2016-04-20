@@ -1,6 +1,7 @@
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 #include "sensor_msgs/Imu.h"
+#include <tf/transform_broadcaster.h>
 
 #include <sstream>
 #include <time.h>
@@ -13,6 +14,9 @@
 
 
 #include "minimu9-ahrs.h"
+
+std::string imu_name;
+std::string topic;
 
 bool enableMuxer(char mask) {
   int adapter_nr = 1;
@@ -27,22 +31,32 @@ bool enableMuxer(char mask) {
   printf("status = %d\n", write(fd, &mask, 1));
 }
 
+void broadcastTF(quaternion quat) {
+	static tf::TransformBroadcaster br;
+	tf::Transform transform;
+	transorm.setOrigin(tf::Vector3(0,0,0));
+	tf::Quaternion q((double) quat.x(),
+										(double) quat.y(),
+										(double) quat.z(),
+										(double) quat.w());
+	transform.setRotation(q);
+	br.sendTransform(tf::StampedTransform(tranform, ros::Time::now(), "world", imu_name);
+}
+
 int main(int argc, char **argv)
 {
 //	enableMuxer(0b00000011);
 
-	if(argc != 5) {
-		printf("Please supply address for lsm, lis, topic, name\n");
+	if(argc != 4) {
+		printf("Please supply address for lsm, lis, name\n");
 		exit(0);
 	}
 	int lsmaddr, lisaddr;
 	lsmaddr = (int) strtol(argv[1], NULL, 16);
 	lisaddr = (int) strtol(argv[2], NULL, 16);
 
-  ros::init(argc, argv, argv[3]);
-  ros::NodeHandle n;
-	ros::Publisher chatter_pub = n.advertise<sensor_msgs::Imu>(argv[4], 1000);
-	std::string frame = "1";
+	imu_name = argv[3];
+  ros::init(argc, argv, imu_name); 
 
 	// Initializa IMU
 	MinIMU9 imu("/dev/i2c-1", lsmaddr, lisaddr);
@@ -51,7 +65,7 @@ int main(int argc, char **argv)
 	imu.measureOffsets();
 
 	int count = 0;
-  ros::Rate loop_rate(100);
+  ros::Rate loop_rate(50);
 	quaternion rotation = quaternion::Identity();
 
 	int start = millis();
@@ -68,29 +82,15 @@ int main(int argc, char **argv)
 
 				fuse_default(rotation, dt, angular_velocity, acceleration, magnetic_field);
 
-				sensor_msgs::Imu msg;
-				msg.header.frame_id = frame;
-				msg.header.stamp = ros::Time::now();
-
 				output_quaternion(rotation);
 				std::cout << "  " << acceleration << "  " << magnetic_field << std::endl << std::flush;
 
-				write_quaternion(msg, rotation);
-
-				msg.linear_acceleration.x = acceleration[0];
-				msg.linear_acceleration.y = acceleration[1];
-				msg.linear_acceleration.z = acceleration[2];
-
-				msg.angular_velocity.x = angular_velocity[0];
-				msg.angular_velocity.y = angular_velocity[1];
-				msg.angular_velocity.z = angular_velocity[2];
-
-				chatter_pub.publish(msg);
-      	// Ensure that each iteration of the loop takes at least 20 ms.
-        /* while(millis() - start < 20)
+				broadcastTF(rotation);
+				// Ensure that each iteration of the loop takes at least 20 ms.
+        while(millis() - start < 20)
         {
             usleep(1000);
-        }*/
+        }
 	}
 
   return 0;

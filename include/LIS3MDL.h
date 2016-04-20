@@ -13,7 +13,7 @@
 class LIS3MDL
 {
 public:
-    LIS3MDL(const char * i2cDeviceName);
+    LIS3MDL(const char * i2cDeviceName, int addr);
 
     // gyro angular velocity readings
     int m[3];
