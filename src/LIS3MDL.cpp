@@ -14,7 +14,7 @@ void LIS3MDL::enable()
     // printf("Enabling LIS3MDL\n");
     uint8_t buf_whoami = readReg(_LIS3MDL_REG_WHO_AM_I);
     if (buf_whoami != _LIS3MDL_VAL_WHO_AM_I) {
-        throw std::runtime_error("Could not detect gyro.");
+        throw std::runtime_error("Could not detect LIS3MDL.");
     }
 
 

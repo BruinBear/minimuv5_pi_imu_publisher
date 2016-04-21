@@ -48,16 +48,13 @@ void LSM6DS33::writeAccReg(uint8_t reg, uint8_t value)
 // mode.
 void LSM6DS33::enable(void)
 {
-    if (device == Device::LSM6DS33)
-    {
 			// Accelerometer
 		  // Sets accelerometer to 833 Hz, full-scale of +/- 4g, 400Hz filter BW
     	// corresponds to 0.122 mg/LSB (see page 15 of the LSM6DS33 datasheet)	
-			writeAccReg(CTRL1_XL, 0b01111000);
+		writeAccReg(CTRL1_XL, 0b01111000);
 			// Sets accelerometer to 833 Hz, full-scale of +/- 4g, 400Hz filter BW
 			// corresponds to 0.122 mg/LSB (see page 15 of the LSM6DS33 datasheet)
-      writeGyroReg(CTRL2_G, 0b01111000);
-    }
+    writeGyroReg(CTRL2_G, 0b01111000);
 }
 
 void LSM6DS33::readAcc(void)
